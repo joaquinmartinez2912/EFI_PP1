@@ -1,0 +1,112 @@
+{% extends 'layout.html' %}
+
+{% block title %} 
+
+Comentarios
+
+{% endblock %}
+
+{% block body %} 
+<div class="col-md-9">
+    <div class="row">
+        <div class="col-4">
+            <form action="/principal", method="post">
+                <input type="hidden" name="usuarioActivo" value= "{{UsAct.nombre}}">
+                <button type="submit" class="btn btn-primary">Regresar</button>
+            </form>
+        </div>
+    </div>
+    <br>
+    <!-- Comentario base -->
+    <div class="container-fluid border border-success p-2 mb-2">
+        <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">{{enActiva.fecha}}</p>
+            </div>
+            <div class="col-3">
+                {% for usu in listaUsuarios %}
+                {% set usuarioId = usu.id %}
+                {% set entradaId = enActiva.id %}
+                {% if usuarioId == entradaId %}
+                    {% set autorNombre = usu.nombre %}
+                    <p class="font-weight-bold" >{{autorNombre}}</p>
+                {% endif %}
+                {% endfor %}             
+            </div>
+            <div class="col-3">
+                <p class="font-weight-bold">{{enActiva.titulo}}</p>
+            </div>
+            <div class="col-3">
+                {% for cat in listaCategorias %}
+                {% set catId = cat.id %}
+                {% set entradaId = enActiva.etiqueta  %}
+                {% if catId == entradaId %}
+                    {% set etiNombre = cat.nombre %}
+                    <p class="font-weight-bold">{{etiNombre}}</p>
+                {% endif %}
+                {% endfor %}  
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p class="font-italic">{{enActiva.contenido}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cuadro para comentar -->
+    <div class="mt-4">
+        <h4>Deja un comentario:</h4>
+        <form action="/agregarComentario" method="post">
+
+            <div class="form-group">
+                <textarea class="form-control" rows="1" id="commentInput" name="fecha" placeholder="Fecha"></textarea>
+            </div>
+            <div class="form-group">
+                <textarea class="form-control" rows="4" id="commentInput" name="texto" placeholder="Comenta..."></textarea>
+            </div>
+            <!-- Mando el numero de id de usuario para buscar en app.py el nombre -->
+            <input type="hidden" name="idUsuario" value= "{{UsAct.id}}"> 
+            <!-- Mando el numero de id de entrada para guardar en app.py -->
+            <input type="hidden" name="idEntrada" value= "{{enActiva.id}}"> 
+
+            <div class="row justify-content-end">
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-success">Comentar</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Comenarios realizados -->
+    <div class="mt-4">
+        <h4>Comentarios:</h4>
+        {% for coment in listaComentarios %} 
+        {% set entradaId = enActiva.id %}
+        {% set comentarioId = coment.etiqueta %}
+        {% if entradaId == comentarioId  %}
+            <div class="container-fluid border border-success p-2 mb-2">
+                <div class="row">
+                    <div class="col-12">
+                        {% for usu in listaUsuarios %}
+                        {% set usuarioId = usu.id %}
+                        {% set comentId = coment.autor %}
+                        {% if usuarioId == comentId %}
+                            {% set autorNombre = usu.nombre %}
+                            <p class="font-weight-bold">El dia {{coment.fecha}}, el usuario {{autorNombre}} comento: </p>
+                        {% endif %}
+                    {% endfor %}     
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="font-italic">{{coment.contenido}}</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block title %} 
+
+Inicio
+
+{% endblock %}
+
+{% block body %} 
+
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title text-center">Iniciar sesión</h4>
+          </div>
+          <div class="card-body">
+            <form action="/principal" method="post">
+              <div class="mb-3">
+                <label for="usuarioActivo" class="form-label">Nombre de usuario</label>
+                <input type="text" class="form-control" name="usuarioActivo" placeholder="Ingresa tu nombre de usuario">
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" name="password" placeholder="Ingresa tu contraseña">
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+            </form>
+            <br>
+            <a href="/usuarios" class="btn btn-success btn-block">Crear usuario</a>
+          </div>
+        </div>
+      </div>
+
+
+{% endblock %}

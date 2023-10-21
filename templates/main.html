@@ -1,0 +1,96 @@
+{% extends 'layout.html' %}
+
+{% block title %} 
+
+Principal
+
+{% endblock %}
+
+{% block body %} 
+
+        <!-- Sección principal -->
+        <div class="col-md-9">
+            <!-- Caja de texto con lista desplegable para temas -->
+            <div class="row justify-content-end">
+                <a href="/" class="btn btn-danger btn-block col-3">Cerrar Sesion</a>
+            </div>
+            <h2>Usuario: {{UsAct.nombre}}</h1>
+            <div class="mt-4">
+                <h4>Escribi un Post:</h4>
+                <form action="/agregarPosteo" method="post">
+                    <div class="form-group">
+                        <textarea class="form-control" rows="1" id="commentInput" name="fecha" placeholder="Fecha"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" rows="1" id="commentInput" name="titulo" placeholder="Titulo"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control" id="topicSelect" name="categ">
+                            {% for categoria in listaCategorias %} 
+                            <option value="{{categoria.nombre}}">{{categoria.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" rows="4" id="commentInput" name="texto" placeholder="Hace tu posteo"></textarea>
+                    </div>
+                    <input type="hidden" name="idUsuario" value= "{{UsAct.id}}">
+                    <button type="submit" class="btn btn-primary">Enviar Comentario</button>
+
+                </form>
+            </div>
+                
+            <!-- Lista de posteos -->
+            <div class="mt-4">
+                <h4>Posteos:</h4>
+                {% for ent in listaEntradas %} 
+                <form action="/comentarios" method="post">
+                    <input type="hidden" name="identrada" value= "{{ent.id}}">
+                    <input type="hidden" name="usuarioActivo" value= "{{UsAct.id}}">
+                    <div class="container-fluid border border-success p-2 mb-2">
+                        <div class="row">
+                            <div class="col-3">
+                                <p class="font-weight-bold">{{ent.fecha}}</p>
+                            </div>
+                            <div class="col-3">
+                                {% for usu in listaUsuarios %}
+                                {% set usuarioId = usu.id %}
+                                {% set entradaId = ent.autor %}
+                                {% if usuarioId == entradaId %}
+                                    {% set autorNombre = usu.nombre %}
+                                    <p class="font-weight-bold" >{{autorNombre}}</p>
+                                {% endif %}
+                            {% endfor %}        
+                            </div>
+                            <div class="col-3">
+                                <p class="font-weight-bold">{{ent.titulo}}</p>
+                            </div>
+                            <div class="col-3">
+                                {% for cat in listaCategorias %}
+                                {% set catId = cat.id %}
+                                {% set entradaId = ent.etiqueta %}
+                                {% if catId == entradaId %}
+                                    {% set etiNombre = cat.nombre %}
+                                    <p class="font-weight-bold">{{etiNombre}}</p>
+                                {% endif %}
+                            {% endfor %}     
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <p class="font-italic">{{ent.contenido}}</p>
+                            </div>
+                        </div>
+                        <div class="row justify-content-end">
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-success">Ingresar</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                {% endfor %}
+            </div>
+        </div>
+
+{% endblock %}

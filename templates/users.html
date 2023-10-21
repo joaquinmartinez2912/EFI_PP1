@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block title %} 
+
+Nuevo Usuario
+
+{% endblock %}
+
+{% block body %} 
+
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title text-center">Registro de usuario</h4>
+          </div>
+          <div class="card-body">
+            <form action="/agregarUsuario" method="post">
+              <div class="mb-3">
+                <label for="usuario" class="form-label">Nombre de usuario</label>
+                <input type="text" class="form-control" name="usuario" placeholder="Ingresa tu nombre de usuario" required>
+              </div>
+              <div class="mb-3">
+                <label for="correo" class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" name="correo" placeholder="Ingresa tu correo electrónico" required>
+              </div>
+              <div class="mb-3">
+                <label for="contra" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" name="contra" placeholder="Ingresa tu contraseña" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+            </form>
+            <br>
+            <a href="/" class="btn btn-success btn-block">Volver a Inicio</a>
+          </div>
+        </div>
+      </div>
+
+{% endblock %}
