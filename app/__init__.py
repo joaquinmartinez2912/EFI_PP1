@@ -11,6 +11,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:@localhost/efi"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+from app.views import view
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5000)
-    
