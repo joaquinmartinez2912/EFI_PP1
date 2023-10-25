@@ -15,6 +15,13 @@ from app.models.models import (
     Comentarios
 )
 
+from app.schemas.schema import (
+    UsuarioSchema,
+    CategoriasSchema,
+    EntradaSchema,
+    ComentariosSchema
+)
+
 @app.context_processor
 def inject_paises():
     cat = db.session.query(Categorias).all()
@@ -63,6 +70,23 @@ def comentarios():
 @app.route("/usuarios")
 def user():
     return render_template("users.html")
+
+@app.route("/add_user", methods=["POST"])
+def add_user():
+    data = request.get_json()
+    nombre = data.get("nombre")
+    correo = data.get("correo") 
+    contrasena = data.get("contrasena")
+
+    nuevoUsuario = Usuario(nombre=nombre, correo=correo, contrasena=contrasena)
+    db.session.add(nuevoUsuario)
+    db.session.commit()
+
+    return jsonify({
+        "Usuario creado exitosamente ?": "Si",
+        "nombre" : nombre,
+        "correo": correo
+    }, 200)
 
 @app.route("/agregarUsuario",methods=["POST"])
 def agregarUsuario():

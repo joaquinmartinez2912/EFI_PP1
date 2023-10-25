@@ -33,6 +33,9 @@ class Entrada(db.Model):
                     db.Integer,
                     ForeignKey("categoria.id"),
                     nullable=False )
+    
+    autor_obj = db.relationship("Usuario")
+    etiqueta_obj = db.relationship("Categorias")
 
     def __str__(self):
         return self.titulo
@@ -50,6 +53,9 @@ class Comentarios(db.Model):
                     db.Integer,
                     ForeignKey("entrada.id"),
                     nullable=False )
+
+    autor_obj = db.relationship("Usuario")
+    eti_obj = db.relationship("Entrada")
 
     def __str__(self):
         return self.titulo
