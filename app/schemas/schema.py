@@ -5,9 +5,9 @@ from marshmallow import fields
 
 class UsuarioSchema(ma.Schema):
     id = fields.Integer(dump_only=True)
-    nombre = fields.String
-    correo = fields.String
-    contrasena = fields.String
+    nombre = fields.String()
+    correo = fields.String()
+    contrasena = fields.String()
 
 class CategoriasSchema(ma.Schema):
     id = fields.Integer(dump_only=True)

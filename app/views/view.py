@@ -73,10 +73,12 @@ def user():
 
 @app.route("/add_user", methods=["POST"])
 def add_user():
-    data = request.get_json()
-    nombre = data.get("nombre")
-    correo = data.get("correo") 
-    contrasena = data.get("contrasena")
+    user_json = request.get_json()
+    user_json = UsuarioSchema().load(request.json)
+    nombre = user_json.get("nombre")
+    correo = user_json.get("correo") 
+    contrasena = user_json.get("contrasena")
+    print(nombre,correo,contrasena)
 
     nuevoUsuario = Usuario(nombre=nombre, correo=correo, contrasena=contrasena)
     db.session.add(nuevoUsuario)
