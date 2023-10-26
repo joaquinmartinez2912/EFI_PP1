@@ -78,8 +78,7 @@ def add_user():
     nombre = user_json.get("nombre")
     correo = user_json.get("correo") 
     contrasena = user_json.get("contrasena")
-    print(nombre,correo,contrasena)
-
+    
     nuevoUsuario = Usuario(nombre=nombre, correo=correo, contrasena=contrasena)
     db.session.add(nuevoUsuario)
     db.session.commit()
@@ -102,6 +101,30 @@ def agregarUsuario():
         db.session.commit()
 
         return redirect(url_for("index"))
+
+@app.route("/add_post", methods=["POST"])
+def add_post():
+    post_json = request.get_json()
+    post_json = EntradaSchema().load(request.json)
+    print(post_json)
+
+    titulo = post_json.get("titulo")
+    contenido = post_json.get("contenido")
+    fecha = post_json.get("fecha")
+    autor = post_json.get("autor")
+    etiqueta = post_json.get("etiqueta")
+
+    nuevoPost = Entrada(titulo=titulo, contenido=contenido, fecha=fecha, autor=autor, etiqueta=etiqueta)
+    db.session.add(nuevoPost)
+    db.session.commit()
+
+    return jsonify({
+    "contenido" : contenido,
+    "autor": autor,
+    "etiqueta" : etiqueta
+    }, 200)
+
+
 
 @app.route("/agregarPosteo", methods=["GET", "POST"])
 def agregarPost():
