@@ -1,4 +1,6 @@
 from app import app, db
+from werkzeug.exceptions import NotFound
+from marshmallow import ValidationError
 
 from flask import (
     jsonify,
@@ -21,6 +23,8 @@ from app.schemas.schema import (
     EntradaSchema,
     ComentariosSchema
 )
+
+from flask.views import MethodView
 
 @app.context_processor
 def inject_paises():
@@ -88,6 +92,51 @@ def add_user():
         "nombre" : nombre,
         "correo": correo
     }, 200)
+
+class UserAPI(MethodView):
+    def get(self, user_id=None):
+        if user_id is None:
+            usuarios = Usuario.query.all()
+            resultado = UsuarioSchema().dump(usuarios, many=True)
+        else:
+            usuario = Usuario.query.get(user_id)
+            resultado = UsuarioSchema().dump(usuario)
+        return jsonify (resultado)
+    
+    def post(self):
+        try:
+            user_json = request.get_json()
+            print("a")
+            user_json = UsuarioSchema().load(request.json)
+
+            nombre = user_json.get("nombre")
+            correo = user_json.get("correo") 
+            contrasena = user_json.get("contrasena")
+
+            nuevoUsuario = Usuario(nombre=nombre, correo=correo, contrasena=contrasena)
+            db.session.add(nuevoUsuario)
+            db.session.commit()
+
+            return jsonify({
+                "Usuario creado exitosamente ?": "Si",
+                "nombre" : nombre,
+                "correo": correo
+            }, 200)
+        
+        except ValidationError:
+            return jsonify({
+                "error": "Error de validación",
+            }, 400)
+        except NotFound:
+            return jsonify({
+                "error": "Recurso no encontrado",
+            }, 404)
+        except Exception:
+            return jsonify({
+                "error": "Error en el servidor",
+            }, 500)
+
+app.add_url_rule("/users",view_func=UserAPI.as_view("usuarios"))
 
 @app.route("/agregarUsuario",methods=["POST"])
 def agregarUsuario():
