@@ -21,77 +21,11 @@ from app.schemas.schema import (
     UsuarioSchema,
     CategoriasSchema,
     EntradaSchema,
+    EntradaVistaSchema,
     ComentariosSchema
 )
 
 from flask.views import MethodView
-
-@app.context_processor
-def inject_paises():
-    cat = db.session.query(Categorias).all()
-    ent = db.session.query(Entrada).all()
-    usu = db.session.query(Usuario).all()
-    coments = db.session.query(Comentarios).all()
-    return dict(
-        listaCategorias=cat,
-        listaEntradas=ent,
-        listaUsuarios=usu,
-        listaComentarios=coments
-    )
-
-@app.route('/')
-def index():
-    return render_template(
-        'index.html'
-    )
-
-@app.route("/principal",methods=["GET", "POST"])
-def main():
-    if request.method == "POST":
-        nombreCargado = request.form["usuarioActivo"]
-        # uso la funcion filter_by porque con get solo puedo buscar por PK que es el id.
-        usActivo = db.session.query(Usuario).filter_by(nombre=nombreCargado).first()
-
-        # Lo paso como parametro en el render_template
-        return render_template("main.html", UsAct = usActivo)
-
-@app.route("/comentarios",methods=["POST"])
-def comentarios():
-    if request.method == "POST":
-        entradaId = request.form["identrada"]
-        usActivoid = request.form["usuarioActivo"]
-       
-        usActivo = db.session.query(Usuario).filter_by(id=usActivoid).first()
-
-        entradas = db.session.query(Entrada).all()
-        objetoEntrada = ""
-        for entrada in entradas:
-            if int(entrada.id) == int(entradaId):
-                objetoEntrada = entrada
-
-        return render_template("comentarios.html", enActiva = objetoEntrada, UsAct = usActivo )
-       
-@app.route("/usuarios")
-def user():
-    return render_template("users.html")
-
-@app.route("/add_user", methods=["POST"])
-def add_user():
-    user_json = request.get_json()
-    user_json = UsuarioSchema().load(request.json)
-    nombre = user_json.get("nombre")
-    correo = user_json.get("correo") 
-    contrasena = user_json.get("contrasena")
-    
-    nuevoUsuario = Usuario(nombre=nombre, correo=correo, contrasena=contrasena)
-    db.session.add(nuevoUsuario)
-    db.session.commit()
-
-    return jsonify({
-        "Usuario creado exitosamente ?": "Si",
-        "nombre" : nombre,
-        "correo": correo
-    }, 200)
 
 class UserAPI(MethodView):
     def get(self, user_id=None):
@@ -138,6 +72,119 @@ class UserAPI(MethodView):
 
 app.add_url_rule("/users",view_func=UserAPI.as_view("usuarios"))
 
+class PostAPI(MethodView):
+    def get(self, post_id=None):
+        if post_id is None:
+            entrada = Entrada.query.all()
+            resultado = EntradaVistaSchema().dump(entrada, many=True)
+        else:
+            entrada = Entrada.query.get(post_id)
+            resultado = EntradaVistaSchema().dump(entrada)
+        return jsonify (resultado)
+    def post(self):
+        try:
+            post_json = request.get_json()
+            post_json = EntradaSchema().load(request.json)
+
+            titulo = post_json.get("titulo")
+            contenido = post_json.get("contenido")
+            fecha = post_json.get("fecha")
+            autor = post_json.get("autor")
+            etiqueta = post_json.get("etiqueta")
+
+            nuevoPost = Entrada(titulo=titulo, contenido=contenido, fecha=fecha, autor=autor, etiqueta=etiqueta)
+            db.session.add(nuevoPost)
+            db.session.commit()
+
+            return jsonify({
+            "contenido" : contenido,
+            "autor": autor,
+            "etiqueta" : etiqueta
+            }, 200)
+        except ValidationError:
+            return jsonify({
+                "error": "Error de validación",
+            }, 400)
+        except NotFound:
+            return jsonify({
+                "error": "Recurso no encontrado",
+            }, 404)
+        except Exception:
+            return jsonify({
+                "error": "Error en el servidor",
+            }, 500)
+    
+app.add_url_rule("/posts",view_func=PostAPI.as_view("entrada"))
+
+class CategoriaAPI(MethodView):
+    def get(self, cate_id=None):
+        if cate_id is None:
+            categorias = Categorias.query.all()
+            resultado = CategoriasSchema().dump(categorias, many=True)
+        else:
+            categorias = Categorias.query.get(cate_id)
+            resultado = CategoriasSchema().dump(categorias)
+        return jsonify (resultado)
+    def post(self):
+        try:
+            cate_json = request.get_json()
+            cate_json = CategoriasSchema().load(request.json)
+
+            nombre = cate_json.get("nombre")
+
+            nuevaCate = Categorias(nombre=nombre)
+            db.session.add(nuevaCate)
+            db.session.commit()
+
+            return jsonify({
+            "nombre" : nombre
+            }, 200)
+        except ValidationError:
+            return jsonify({
+                "error": "Error de validación",
+            }, 400)
+        except NotFound:
+            return jsonify({
+                "error": "Recurso no encontrado",
+            }, 404)
+        except Exception:
+            return jsonify({
+                "error": "Error en el servidor",
+            }, 500)
+
+app.add_url_rule("/cats",view_func=CategoriaAPI.as_view("categorias"))
+
+### Rutas con templates:
+
+@app.context_processor
+def inject_paises():
+    cat = db.session.query(Categorias).all()
+    ent = db.session.query(Entrada).all()
+    usu = db.session.query(Usuario).all()
+    coments = db.session.query(Comentarios).all()
+    return dict(
+        listaCategorias=cat,
+        listaEntradas=ent,
+        listaUsuarios=usu,
+        listaComentarios=coments
+    )
+
+@app.route('/')
+def index():
+    return render_template(
+        'index.html'
+    )
+
+@app.route("/principal",methods=["GET", "POST"])
+def main():
+    if request.method == "POST":
+        nombreCargado = request.form["usuarioActivo"]
+        # uso la funcion filter_by porque con get solo puedo buscar por PK que es el id.
+        usActivo = db.session.query(Usuario).filter_by(nombre=nombreCargado).first()
+
+        # Lo paso como parametro en el render_template
+        return render_template("main.html", UsAct = usActivo)
+
 @app.route("/agregarUsuario",methods=["POST"])
 def agregarUsuario():
     if request.method == "POST":
@@ -151,29 +198,25 @@ def agregarUsuario():
 
         return redirect(url_for("index"))
 
-@app.route("/add_post", methods=["POST"])
-def add_post():
-    post_json = request.get_json()
-    post_json = EntradaSchema().load(request.json)
-    print(post_json)
+@app.route("/comentarios",methods=["POST"])
+def comentarios():
+    if request.method == "POST":
+        entradaId = request.form["identrada"]
+        usActivoid = request.form["usuarioActivo"]
+       
+        usActivo = db.session.query(Usuario).filter_by(id=usActivoid).first()
 
-    titulo = post_json.get("titulo")
-    contenido = post_json.get("contenido")
-    fecha = post_json.get("fecha")
-    autor = post_json.get("autor")
-    etiqueta = post_json.get("etiqueta")
+        entradas = db.session.query(Entrada).all()
+        objetoEntrada = ""
+        for entrada in entradas:
+            if int(entrada.id) == int(entradaId):
+                objetoEntrada = entrada
 
-    nuevoPost = Entrada(titulo=titulo, contenido=contenido, fecha=fecha, autor=autor, etiqueta=etiqueta)
-    db.session.add(nuevoPost)
-    db.session.commit()
-
-    return jsonify({
-    "contenido" : contenido,
-    "autor": autor,
-    "etiqueta" : etiqueta
-    }, 200)
-
-
+        return render_template("comentarios.html", enActiva = objetoEntrada, UsAct = usActivo )
+       
+@app.route("/usuarios")
+def user():
+    return render_template("users.html")
 
 @app.route("/agregarPosteo", methods=["GET", "POST"])
 def agregarPost():
