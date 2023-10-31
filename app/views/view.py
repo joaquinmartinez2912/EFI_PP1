@@ -154,6 +154,18 @@ class CategoriaAPI(MethodView):
 
 app.add_url_rule("/cats",view_func=CategoriaAPI.as_view("categorias"))
 
+class ComentariosAPI(MethodView):
+    def get(self, come_id=None):
+        if come_id is None:
+            comentario = Comentarios.query.all()
+            resultado = ComentariosSchema().dump(comentario, many=True)
+        else:
+            comentario = Comentarios.query.get(come_id)
+            resultado = ComentariosSchema().dump(comentario)
+        return jsonify (resultado)
+    
+app.add_url_rule("/coments/<come_id>", view_func=ComentariosAPI.as_view("comentario"))
+
 ### Rutas con templates:
 
 @app.context_processor
