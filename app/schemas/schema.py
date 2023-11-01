@@ -19,12 +19,11 @@ class EntradaSchema(ma.Schema):
     contenido = fields.String()
     fecha = fields.String()
     autor = fields.Integer()
-    autor_obj = fields.Nested(UsuarioSchema, exclude=("id","correo","contrasena"))
     etiqueta = fields.Integer()
+    autor_obj = fields.Nested(UsuarioSchema, exclude=("id","correo","contrasena"))
     etiqueta_obj = fields.Nested(CategoriasSchema, exclude=("id",))
 
 class EntradaVistaSchema(ma.Schema):
-    id = fields.Integer(dump_only=True)
     titulo = fields.String()
     contenido = fields.String()
     fecha = fields.String()
@@ -36,4 +35,4 @@ class ComentariosSchema(ma.Schema):
     contenido = fields.String()
     fecha = fields.String()
     autor_obj = fields.Nested(UsuarioSchema, exclude=("id","correo","contrasena"))
-    eti_obj = fields.Nested(EntradaSchema, exclude=("id","contenido","fecha","autor_obj","etiqueta_obj"))
+    eti_obj = fields.Nested(EntradaSchema, exclude=("contenido","fecha","autor_obj","etiqueta_obj"))
