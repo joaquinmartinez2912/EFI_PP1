@@ -26,6 +26,10 @@ from app.schemas.schema import (
 
 from flask.views import MethodView
 
+@app.errorhandler(404)
+def resource_not_found(e):
+    return jsonify(error="La ruta ingresada no se encuentra definida"), 404
+
 class UserAPI(MethodView):
     def get(self, user_id=None):
         if user_id is None:

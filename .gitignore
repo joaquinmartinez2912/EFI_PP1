@@ -128,3 +128,4 @@ dmypy.json
 node_modules/
 
 .data
+migrations/
