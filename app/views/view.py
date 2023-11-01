@@ -20,7 +20,8 @@ from app.schemas.schema import (
     CategoriaPostSchema,
     EntradaGetSchema,
     EntradaPostSchema,
-    ComentariosSchema,
+    ComentariosGetSchema,
+    ComentariosPostSchema
 )
 
 from flask.views import MethodView
@@ -203,14 +204,15 @@ class ComentariosAPI(MethodView):
     def get(self, post_id=None):
         if post_id is None:
             comentario = Comentarios.query.all()
-            resultado = ComentariosSchema().dump(comentario, many=True)
+            resultado = ComentariosGetSchema().dump(comentario, many=True)
         else:
             entrada = Entrada.query.get(post_id)
             if entrada is None:
                 return jsonify({"Mensaje": "Ese id de posteo no existe"}, 404)
+            
             comentarios = Comentarios.query.filter_by(etiqueta=int(post_id)).all()
             if len(comentarios) != 0:
-                resultado = ComentariosSchema().dump(comentarios, many=True)
+                resultado = ComentariosGetSchema().dump(comentarios, many=True)
             else:
                 return jsonify({"Mensaje": "Ese id de posteo no tiene comentarios"})
         return jsonify(resultado)
@@ -218,7 +220,7 @@ class ComentariosAPI(MethodView):
     def post(self):
         try:
             coment_json = request.get_json()
-            coment_json = ComentariosSchema().load(request.json)
+            coment_json = ComentariosPostSchema().load(request.json)
 
             contenido = coment_json.get("contenido")
             fecha = coment_json.get("fecha")
@@ -232,7 +234,7 @@ class ComentariosAPI(MethodView):
             db.session.commit()
 
             return jsonify(
-                {"contenido": contenido, "autor": autor, "etiqueta": etiqueta}, 200
+                {"comentario": contenido, "autor": nuevoComent.autor_obj.nombre, "posteo": nuevoComent.eti_obj.titulo}, 200
             )
         except ValidationError:
             return jsonify(
@@ -258,12 +260,9 @@ class ComentariosAPI(MethodView):
 
 
 app.add_url_rule("/coments", view_func=ComentariosAPI.as_view("comentario"))
-app.add_url_rule(
-    "/coments/<post_id>", view_func=ComentariosAPI.as_view("comentario_por_posteo")
-)
+app.add_url_rule("/coments/<post_id>", view_func=ComentariosAPI.as_view("comentario_por_posteo"))
 
 ### Rutas con templates:
-
 
 @app.context_processor
 def inject_paises():
