@@ -10,6 +10,11 @@ from flask import (
     url_for,
 )
 
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+
 # Imports de variables generadas por nosotros
 from app.models.models import Usuario, Entrada, Categorias, Comentarios
 
@@ -48,8 +53,11 @@ class UserAPI(MethodView):
             nombre = user_json.get("nombre")
             correo = user_json.get("correo")
             contrasena = user_json.get("contrasena")
+            password_hash = generate_password_hash(
+             contrasena, method='pbkdf2', salt_length=8
+             )
 
-            nuevoUsuario = Usuario(nombre=nombre, correo=correo, contrasena=contrasena)
+            nuevoUsuario = Usuario(nombre=nombre, correo=correo, contrasena=password_hash)
             db.session.add(nuevoUsuario)
             db.session.commit()
 
@@ -58,6 +66,7 @@ class UserAPI(MethodView):
                     "Usuario creado exitosamente ?": "Si",
                     "nombre": nombre,
                     "correo": correo,
+                    "contraseña": password_hash
                 },
                 200,
             )
