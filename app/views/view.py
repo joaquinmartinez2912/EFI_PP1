@@ -14,30 +14,31 @@ from flask import (
 from app.models.models import Usuario, Entrada, Categorias, Comentarios
 
 from app.schemas.schema import (
-    UsuarioSchema,
-    CategoriasSchema,
-    EntradaSchema,
-    EntradaVistaSchema,
+    UsuarioGetSchema,
+    UsuarioPostSchema,
+    CategoriaGetSchema,
+    CategoriaPostSchema,
+    EntradaGetSchema,
+    EntradaPostSchema,
     ComentariosSchema,
 )
 
 from flask.views import MethodView
 
-
 class UserAPI(MethodView):
     def get(self, user_id=None):
         if user_id is None:
             usuarios = Usuario.query.all()
-            resultado = UsuarioSchema().dump(usuarios, many=True)
+            resultado = UsuarioGetSchema().dump(usuarios, many=True)
         else:
             usuario = Usuario.query.get(user_id)
-            resultado = UsuarioSchema().dump(usuario)
+            resultado = UsuarioGetSchema().dump(usuario)
         return jsonify(resultado)
 
     def post(self):
         try:
             user_json = request.get_json()
-            user_json = UsuarioSchema().load(request.json)
+            user_json = UsuarioPostSchema().load(request.json)
 
             nombre = user_json.get("nombre")
             correo = user_json.get("correo")
@@ -86,16 +87,16 @@ class PostAPI(MethodView):
     def get(self, post_id=None):
         if post_id is None:
             entrada = Entrada.query.all()
-            resultado = EntradaVistaSchema().dump(entrada, many=True)
+            resultado = EntradaGetSchema().dump(entrada, many=True)
         else:
             entrada = Entrada.query.get(post_id)
-            resultado = EntradaVistaSchema().dump(entrada)
+            resultado = EntradaGetSchema().dump(entrada)
         return jsonify(resultado)
 
     def post(self):
         try:
             post_json = request.get_json()
-            post_json = EntradaSchema().load(request.json)
+            post_json = EntradaPostSchema().load(request.json)
 
             titulo = post_json.get("titulo")
             contenido = post_json.get("contenido")
@@ -115,9 +116,10 @@ class PostAPI(MethodView):
 
             return jsonify(
                 {
+                    "titulo": titulo,
                     "contenido": contenido,
-                    "autor": nuevoPost.autor,
-                    "etiqueta": etiqueta,
+                    "autor": nuevoPost.autor_obj.nombre,
+                    "etiqueta": nuevoPost.etiqueta_obj.nombre,
                 },
                 200,
             )
@@ -152,16 +154,16 @@ class CategoriaAPI(MethodView):
     def get(self, cate_id=None):
         if cate_id is None:
             categorias = Categorias.query.all()
-            resultado = CategoriasSchema().dump(categorias, many=True)
+            resultado = CategoriaGetSchema().dump(categorias, many=True)
         else:
             categorias = Categorias.query.get(cate_id)
-            resultado = CategoriasSchema().dump(categorias)
+            resultado = CategoriaGetSchema().dump(categorias)
         return jsonify(resultado)
 
     def post(self):
         try:
             cate_json = request.get_json()
-            cate_json = CategoriasSchema().load(request.json)
+            cate_json = CategoriaPostSchema().load(request.json)
 
             nombre = cate_json.get("nombre")
 
