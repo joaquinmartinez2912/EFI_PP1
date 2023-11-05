@@ -53,7 +53,28 @@ Dentro del entorno, levantar el archivo requirements.txt que contiene las depend
 ```
 pip install -r requirements.txt
 ```
+
 **Paso 5.**
+Eliminar carpeta migraciones e iniciar el modelo de migraciones
+
+```python 
+flask db init
+```
+Esto se hace por unica vez y crea todas las carpetas necesarias para trabajar.
+
+**Paso 6.**
+
+Generar migracion que cargue en la base de datos las tablas creadas.
+
+```python 
+flask db migrate -m "Descripcion de migracion"
+```
+Realizado esto, se actualiza para que aparezca.
+```python 
+flask db upgrade
+```
+
+**Paso 7.**
 
 Ver contenido sobre [Variables de entorno](#variables-de-entorno) y luego iniciar proyecto local con:
 ```
