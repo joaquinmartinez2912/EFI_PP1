@@ -91,6 +91,41 @@ class UserAPI(MethodView):
                 },
                 500,
             )
+        
+    def put(self, user_id):
+        usuario = Usuario.query.get(user_id)
+
+        if usuario is None:
+            return jsonify(Mensaje=f"No existe usuario con ID:{user_id}"), 404
+        try:
+            user_json = UsuarioGetSchema().load(request.json)
+            nuevo_correo = user_json.get("correo")
+
+            usuario.correo = nuevo_correo
+            db.session.commit()
+            return jsonify(Mensaje=f"Se modifico el correo del usuario de ID:{user_id}")
+        except ValidationError:
+            return jsonify(
+                {
+                    "error": "Error de validación",
+                },
+                400,
+            )
+        except Exception:
+            return jsonify(
+                {
+                    "error": "Error en el servidor",
+                },
+                500,
+            )
+        
+    def delete(self, user_id):
+        usuario = Usuario.query.get(user_id)
+        if usuario is None:
+            return jsonify(Mensaje=f"No existe usuario con ID:{user_id}"), 404
+        db.session.delete(usuario)
+        db.session.commit()
+        return jsonify(Mensaje=f"Se borro el usuario de ID {user_id}")
 
 
 app.add_url_rule("/users", view_func=UserAPI.as_view("usuarios"))
@@ -159,6 +194,40 @@ class PostAPI(MethodView):
                 500,
             )
 
+    def put(self, post_id):
+        post = Entrada.query.get(post_id)
+
+        if post is None:
+            return jsonify(Mensaje=f"No existe post con ID:{post_id}"), 404
+        try:
+            post_json = EntradaGetSchema().load(request.json)
+            nuevo_titulo = post_json.get("titulo")
+
+            post.titulo = nuevo_titulo
+            db.session.commit()
+            return jsonify(Mensaje=f"Se modifico el titulo del post de ID:{post_id}")
+        except ValidationError:
+            return jsonify(
+                {
+                    "error": "Error de validación",
+                },
+                400,
+            )
+        except Exception:
+            return jsonify(
+                {
+                    "error": "Error en el servidor",
+                },
+                500,
+            )
+        
+    def delete(self, post_id):
+        post = Entrada.query.get(post_id)
+        if post is None:
+            return jsonify(Mensaje=f"No existe post con ID:{post_id}"), 404
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify(Mensaje=f"Se borro el post de ID {post_id}")
 
 app.add_url_rule("/posts", view_func=PostAPI.as_view("entrada"))
 app.add_url_rule("/posts/<post_id>", view_func=PostAPI.as_view("entrada_por_id"))
@@ -208,6 +277,40 @@ class CategoriaAPI(MethodView):
                 500,
             )
 
+    def put(self, cate_id):
+        cate = Categorias.query.get(cate_id)
+
+        if cate is None:
+            return jsonify(Mensaje=f"No existe categoria con ID:{cate_id}"), 404
+        try:
+            cate_json = CategoriaGetSchema().load(request.json)
+            nombre_nuevo = cate_json.get("nombre")
+
+            cate.nombre = nombre_nuevo
+            db.session.commit()
+            return jsonify(Mensaje=f"Se modifico el titulo del categoria de ID:{cate_id}")
+        except ValidationError:
+            return jsonify(
+                {
+                    "error": "Error de validación",
+                },
+                400,
+            )
+        except Exception:
+            return jsonify(
+                {
+                    "error": "Error en el servidor",
+                },
+                500,
+            )
+        
+    def delete(self, cate_id):
+        cate = Categorias.query.get(cate_id)
+        if cate is None:
+            return jsonify(Mensaje=f"No existe cate con ID:{cate_id}"), 404
+        db.session.delete(cate)
+        db.session.commit()
+        return jsonify(Mensaje=f"Se borro la categoria de ID {cate_id}")
 
 app.add_url_rule("/cats", view_func=CategoriaAPI.as_view("categorias"))
 app.add_url_rule("/cats/<cate_id>", view_func=CategoriaAPI.as_view("categorias_por_id"))
@@ -271,9 +374,44 @@ class ComentariosAPI(MethodView):
                 500,
             )
 
+    def put(self, coment_id):
+        coment = Comentarios.query.get(coment_id)
+
+        if coment is None:
+            return jsonify(Mensaje=f"No existe comentario con ID:{coment_id}"), 404
+        try:
+            coment_json = ComentariosGetSchema().load(request.json)
+            conte_nuevo = coment_json.get("contenido")
+
+            coment.contenido = conte_nuevo
+            db.session.commit()
+            return jsonify(Mensaje=f"Se modifico el contenido del comentario de ID:{coment_id}")
+        except ValidationError:
+            return jsonify(
+                {
+                    "error": "Error de validación",
+                },
+                400,
+            )
+        except Exception:
+            return jsonify(
+                {
+                    "error": "Error en el servidor",
+                },
+                500,
+            )
+        
+    def delete(self, coment_id):
+        coment = Comentarios.query.get(coment_id)
+        if coment is None:
+            return jsonify(Mensaje=f"No existe comentario con ID:{coment_id}"), 404
+        db.session.delete(coment)
+        db.session.commit()
+        return jsonify(Mensaje=f"Se borro el comentario de ID {coment_id}")
 
 app.add_url_rule("/coments", view_func=ComentariosAPI.as_view("comentario"))
 app.add_url_rule("/coments/<post_id>", view_func=ComentariosAPI.as_view("comentario_por_posteo"))
+app.add_url_rule("/comentsModif/<coment_id>", view_func=ComentariosAPI.as_view("comentarios_modificados"))
 
 ### Rutas con templates:
 
